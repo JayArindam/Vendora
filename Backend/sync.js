@@ -8,6 +8,8 @@ const syncDB = async () => {
   } catch (error) {
     console.error("Error syncing database:", error);
   }
+
+
 };
 
 syncDB();
