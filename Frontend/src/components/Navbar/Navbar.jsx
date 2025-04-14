@@ -26,7 +26,7 @@ const Navbar = () => {
     <>
       <nav className='z-50 relative flex bg-zinc-800 text-white px-8 py-4 items-center justify-between'>
         <Link to="/" className='flex items-center'>
-          <img className='h-10 me-4' src="src/assets/bookshelf.png" alt="logo" />
+          <img className='h-10 me-4' src="	https://cdn-icons-png.flaticon.com/512/3038/3038168.png" alt="logo" />
           <h1 className='text-2xl font-semibold'>Vendora</h1>
         </Link>
         <div className="nav-links-vendora block md:flex items-center gap-4">
@@ -41,7 +41,7 @@ const Navbar = () => {
             <Link to="/Login" className='px-4 py-1 border border-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300'>Login</Link>
             <Link to="/SignUp" className='px-4 py-1 bg-blue-500 rounded hover:bg-white hover:text-zinc-800 transition-all duration-300'>SignUp</Link>
           </div>
-          <button className='text-white text-2xl hover:text-zinc-400' onClick={()=>(MobileNav === "hidden" ? setMobileNav("block") : setMobileNav("hidden"))}>
+          <button className='block md:hidden text-white text-2xl hover:text-zinc-400' onClick={()=>(MobileNav === "hidden" ? setMobileNav("block") : setMobileNav("hidden"))}>
             <CgDetailsMore />
           </button>
         </div>

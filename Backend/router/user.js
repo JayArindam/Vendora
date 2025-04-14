@@ -21,20 +21,16 @@ router.post("/sign-up", async(req, res) =>{
             .status(400)
             .json({message: "Password length should be more than 6 characters"});
         }
-        const hashPass = await bcrypt.hash(password, 10);
 
         const existingUser = await User.findOne({
-            $or: [{ username: username }, { email: email }]
+            where: { email: email.toLowerCase() }
         });
-        
+
         if (existingUser) {
-            if (existingUser.username === username) {
-                return res.status(400).json({ message: "Username exists" });
-            }
-            if (existingUser.email === email) {
-                return res.status(400).json({ message: "Email exists" });
-            }
+            return res.status(400).json({ message: "Email already exists" });
         }
+
+        const hashPass = await bcrypt.hash(password, 10);
 
         await User.create({
             username,
@@ -55,13 +51,12 @@ router.post("/sign-up", async(req, res) =>{
  
 router.post("/sign-in", async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { email, password } = req.body;
 
-        if(!username && !email){
-            return res.status(400).json({message: "Username or Email is required"});
+        if(!email){
+            return res.status(400).json({message: "Email is required"});
         }
-        const whereCondition = email ? { email } : { username };
-        const existingUser = await User.findOne({ where: whereCondition });
+        const existingUser = await User.findOne({ where: {email} });
 
         if (!existingUser) {
             return res.status(400).json({ message: "Invalid Credentials" });
