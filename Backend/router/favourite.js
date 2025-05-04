@@ -51,25 +51,30 @@ router.delete("/delete-from-fav", authenticateToken, async (req, res) =>{
     }
 });
 
-//get favourites of a user 
-router.get("/get-favs", authenticateToken, async(req, res) => {
-    try{
-        const {id} = req.headers;
+
+// get favourites of a user 
+router.get("/get-favs", authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.headers;
 
         const favourites = await Favourite.findAll({
-            where : { userId : id}, 
-            include : [{ model: Book}]
+            where: { userId: id },
+            include: [{ model: Book, as: 'book' }]  // Use 'book' here as the alias for Book
         });
 
-        const books = favourites.map(fav => fav.Book);
+        if (favourites.length === 0) {
+            return res.status(404).json({ message: "No favorites found" });
+        }
+
+        const books = favourites.map(fav => fav.book);  // Access 'book' based on the alias
 
         return res.json({
-            status: "Success", 
-            data : books
+            status: "Success",
+            data: books
         });
-    } catch(error){
-        console.log(error); 
-        return res.status(500).json({ message : "An error occured"});
+    } catch (error) {
+        console.error("Error in get-favs route:", error);
+        return res.status(500).json({ message: "An error occurred", error: error.message });
     }
-})
+});
 module.exports = router;

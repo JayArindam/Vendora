@@ -1,71 +1,68 @@
 const router = require("express").Router();
-const User = require("../models/user");
 const authenticateToken = require("./userAuth");
+const Cart = require("../models/cart");
 
-//put book to cart
-router.put("/add-to-cart",authenticateToken, async(req,res)=>{
-    try{
-        const {bookid, id} = req.headers;
+// PUT: Add book to cart
+router.put("/add-to-cart", authenticateToken, async (req, res) => {
+    try {
+        const { bookid } = req.body;
+        const { id: userId } = req.headers;
 
-        const user = await User.findByPk(id);
-        if(!user){
-            return res.status(404).json({message: "User not found"});
+        // Check if already in cart
+        const existing = await Cart.findOne({ where: { userId, bookId: bookid } });
+
+        if (existing) {
+            return res.json({ status: "success", message: "Book already in cart" });
         }
 
-        const cart = user.cart ||[];
-        if(cart.includes(bookid)){
-            return res.json({status: "success", message: "Book already in cart"});
-        }
-        cart.push(bookid);
-        await user.update({cart});
+        // Add to cart
+        await Cart.create({ userId, bookId: bookid });
 
-        return res.json({status:"Success", message:"Book added to cart"});
-    }catch(error){
-        console.log(error);
-        return res.status(500).json({messsage:"An error occurred"});
+        return res.json({ status: "success", message: "Book added to cart" });
+    } catch (error) {
+        console.error("Add to cart error:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
+// Remove book from cart
+router.put("/remove-from-cart/:bookid", authenticateToken, async (req, res) => {
+    try {
+        const { bookid } = req.params;
+        const userId = req.headers.id;
 
-//remove book from cart
-router.put("/remove-from-cart/:bookid",authenticateToken, async(req,res)=>{
-    try{
-        const {bookid} = req.params;
-        const {id} = req.headers;
+        const deleted = await Cart.destroy({
+            where: { userId, bookId: bookid },
+        });
 
-        const user = await User.findByPk(id);
-        if(!user){
-            return res.status(404).json({message :"User not found"});
+        if (deleted === 0) {
+            return res.status(404).json({ message: "Book not found in cart" });
         }
-        const cart = user.cart || [];
-        const updatedCart = cart.filter((item) => item !== bookid);
 
-        await user.update({cart: updatedCart});
-
-        return res.json({status:"Success", message:"Book removed from cart",});
-    }catch(error){
+        return res.json({ status: "Success", message: "Book removed from cart" });
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({messsage:"An error occurred"});
+        return res.status(500).json({ message: "An error occurred" });
     }
 });
 
-//get cart of a particular user
-router.get("/get-user-cart",authenticateToken, async(req,res)=>{
-    try{
-        const {id} = req.headers;
+// Get user cart items
+router.get("/get-user-cart", authenticateToken, async (req, res) => {
+    try {
+        const userId = req.headers.id;
 
-        const user = await User.findByPk(id);
-        if(!user){
-            return res.status(404).json({message: "User not found"});
-        }
+        // Fetch the cart items for a particular user
+        const cartItems = await Cart.findAll({
+            where: { userId },
+            include: [{ model: Book }], // Optional: include book details
+            order: [["createdAt", "DESC"]],
+        });
 
-        const cart = user.cart ? [...user.cart].reverse() : [];
-
-        return res.json({status:"Success", data:cart});
-    }catch(error){
+        return res.json({ status: "Success", data: cartItems });
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({messsage:"An error occurred"});
+        return res.status(500).json({ message: "An error occurred" });
     }
 });
 
-module.exports=router;
+module.exports = router;
