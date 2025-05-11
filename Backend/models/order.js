@@ -11,4 +11,13 @@ const Order = sequelize.define("Order", {
     }
 }, { timestamps: true });
 
+// Association function
+Order.associate = (models) => {
+    Order.belongsTo(models.Book, {
+        foreignKey: "bookId",
+        onDelete: "RESTRICT", // or "CASCADE" if you want to delete orders with the book
+        onUpdate: "CASCADE"
+    });
+};
+
 module.exports = Order;

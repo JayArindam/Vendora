@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const authenticateToken = require("./userAuth");
 const Cart = require("../models/cart");
+const Book = require('../models/Book');
+
 
 // PUT: Add book to cart
 router.put("/add-to-cart", authenticateToken, async (req, res) => {
@@ -51,17 +53,16 @@ router.get("/get-user-cart", authenticateToken, async (req, res) => {
     try {
         const userId = req.headers.id;
 
-        // Fetch the cart items for a particular user
         const cartItems = await Cart.findAll({
             where: { userId },
-            include: [{ model: Book }], // Optional: include book details
+            include: [{ model: Book, as: "book" }], // Use `as: "book"` as per your association
             order: [["createdAt", "DESC"]],
         });
 
-        return res.json({ status: "Success", data: cartItems });
+        res.json({ status: "Success", data: cartItems });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "An error occurred" });
+        console.error("Error fetching cart:", error);
+        res.status(500).json({ message: "An error occurred" });
     }
 });
 

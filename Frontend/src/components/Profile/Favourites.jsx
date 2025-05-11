@@ -19,7 +19,11 @@ const Favourites = () => {
       }
     };
     fetch();
-  }, [FavouriteBooks]);
+  }, []);  // Empty dependency array to run only once on component mount
+
+  const handleRemove = (bookId) => {
+    setFavouriteBooks((prevBooks) => prevBooks.filter(book => book.id !== bookId));  // Remove the book from the local state
+  };
 
   return (
     <div>
@@ -32,7 +36,7 @@ const Favourites = () => {
         <div className="grid grid-cols-3 gap-4">
           {FavouriteBooks.map((items, i) => (
             <div key={i}>
-              <BookCard data={items} favourite={true} />
+              <BookCard data={items} favourite={true} onRemove={handleRemove} />
             </div>
           ))}
         </div>
