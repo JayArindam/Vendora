@@ -5,8 +5,7 @@
   "scripts": {
     "dev" : "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --hot",
-    "build": "webpack --watch"
+    "build": "echo 'No build step required'",
   },
   "keywords": [],
   "author": "",
